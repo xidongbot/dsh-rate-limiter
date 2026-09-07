@@ -38,11 +38,34 @@
  * @module dsh-rate-limiter/settings
  */
 import type { Context } from "@deepseek-ai/cordis";
-import { settingsNamespace } from "@deepseek-ai/dsh-settings";
+import type { SettingsNamespace } from "@deepseek-ai/dsh-settings";
 import { Config } from "./config.js";
 
-/** `rate-limiter` settings namespace（存在 settings 服务时注册）。 */
-export const RATE_LIMITER_SETTINGS_NAMESPACE = settingsNamespace("rate-limiter");
+/**
+ * `rate-limiter` settings namespace（存在 settings 服务时注册）。
+ *
+ * `0.1.0-rc.8` 及之前版本曾提供顶层 `settingsNamespace(str)` 工厂函数。
+ * 自上游 `f4e49ccf8f`（2026-08-29，dsh-settings `0.1.2-rc.1` 起）该工厂被
+ * 移除：namespace 改由字符串字面量承载，TS 模板字面量类型
+ * `SettingsNamespaceInput<Namespace>` 在 `register` / `get` / `update` 等
+ * 编译期校验 kebab-case 命名空间（首字符 `[a-z]`，后续 `[a-z0-9-]*`）。
+ * 这里用 `as SettingsNamespace` 标注常量（值仍是 `"rate-limiter"` 字面量），
+ * 调用 `register` 时类型上仍命中 branded `SettingsNamespace` 接口；运行时
+ * 无开销，编译期如有非法命名空间（如 `"Rate Limiter"`）会直接 `never`。
+ *
+ * Up to `0.1.0-rc.8`, a top-level `settingsNamespace(str)` factory was
+ * provided. Since upstream commit `f4e49ccf8f` (2026-08-29, dsh-settings
+ * `0.1.2-rc.1`) the factory has been removed — namespaces are now carried
+ * as bare string literals and TS's `SettingsNamespaceInput<Namespace>`
+ * template-literal type validates kebab-case namespaces at compile time
+ * (first char `[a-z]`, rest `[a-z0-9-]*`) on `register` / `get` / `update`
+ * etc. We annotate the constant with `as SettingsNamespace` (value is still
+ * the literal `"rate-limiter"`); `register` calls still typecheck against
+ * the branded `SettingsNamespace` interface. No runtime overhead; an
+ * invalid namespace (e.g. `"Rate Limiter"`) becomes `never` at compile time.
+ */
+export const RATE_LIMITER_SETTINGS_NAMESPACE: SettingsNamespace =
+  "rate-limiter" as SettingsNamespace;
 
 /**
  * @deepseek-ai/dsh-settings 的 `isUnloading` 守卫镜像（其
@@ -59,6 +82,14 @@ export const RATE_LIMITER_SETTINGS_NAMESPACE = settingsNamespace("rate-limiter")
  * `ctx.fiber` is not declared on the public Context type, so it is read
  * through a minimal structural cast.
  */
+// TODO(cordis-upgrade): 升级 `@deepseek-ai/cordis` 时核对 `FiberState` 枚举
+// 数值（当前 DISPOSED = 4、UNLOADING = 5 来自 cordis 4.0.1；若上游加新成员
+// 或重排顺序，本镜像将静默失效；届时应改用上游导出的命名常量或抽到独立模块）。
+//
+// TODO(cordis-upgrade): when upgrading `@deepseek-ai/cordis`, re-verify the
+// `FiberState` enum values (DISPOSED = 4, UNLOADING = 5 as of cordis 4.0.1;
+// if upstream reorders or inserts members, this mirror silently breaks —
+// then prefer a named constant exported by cordis or extract to a module).
 function isUnloading(ctx: Context): boolean {
   const state = (ctx as { fiber?: { state?: number } }).fiber?.state;
   return state === 4 || state === 5;

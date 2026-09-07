@@ -55,13 +55,10 @@
 import type { Context } from "@deepseek-ai/cordis";
 import { TypertRemoteService } from "@deepseek-ai/dsh-typert-protocol";
 import type { InvocationDescriptor } from "@deepseek-ai/dsh-typert-protocol";
-import { settingsNamespace } from "@deepseek-ai/dsh-settings";
 import type { SettingsPathOp, SettingsProvider } from "@deepseek-ai/dsh-settings";
 import { resolveConfig } from "./config.js";
 import type { RateLimiterSettingsBridge } from "./settings.js";
-
-/** `rate-limiter` settings namespace（写入目标）。 */
-export const RATE_LIMITER_SETTINGS_NAMESPACE = settingsNamespace("rate-limiter");
+import { RATE_LIMITER_SETTINGS_NAMESPACE } from "./settings.js";
 
 /**
  * 把顶层 patch 转成 settings `mutate` 的路径操作序列（纯函数，可单测）。
