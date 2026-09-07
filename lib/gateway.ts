@@ -55,24 +55,10 @@
 import type { Context } from "@deepseek-ai/cordis";
 import { TypertRemoteService } from "@deepseek-ai/dsh-typert-protocol";
 import type { InvocationDescriptor } from "@deepseek-ai/dsh-typert-protocol";
-import type { SettingsNamespace, SettingsPathOp, SettingsProvider } from "@deepseek-ai/dsh-settings";
+import type { SettingsPathOp, SettingsProvider } from "@deepseek-ai/dsh-settings";
 import { resolveConfig } from "./config.js";
 import type { RateLimiterSettingsBridge } from "./settings.js";
-
-/**
- * `rate-limiter` settings namespace（写入目标）。直接承载字面量字符串：
- * dsh-settings `0.1.2-rc.1` 起 `settingsNamespace(str)` 顶层工厂被移除
- * （上游 `f4e49ccf8f`），命名空间改为字符串字面量 + TS 模板字面量类型
- * `SettingsNamespaceInput<Namespace>` 编译期校验（详见 `lib/settings.ts`）。
- *
- * Carries the literal string directly: since dsh-settings `0.1.2-rc.1`
- * (upstream `f4e49ccf8f`) the top-level `settingsNamespace(str)` factory has
- * been removed — namespaces are string literals validated at compile time
- * via the `SettingsNamespaceInput<Namespace>` template-literal type (see
- * `lib/settings.ts` for details).
- */
-export const RATE_LIMITER_SETTINGS_NAMESPACE: SettingsNamespace =
-  "rate-limiter" as SettingsNamespace;
+import { RATE_LIMITER_SETTINGS_NAMESPACE } from "./settings.js";
 
 /**
  * 把顶层 patch 转成 settings `mutate` 的路径操作序列（纯函数，可单测）。

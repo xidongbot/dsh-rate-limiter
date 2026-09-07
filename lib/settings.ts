@@ -82,6 +82,14 @@ export const RATE_LIMITER_SETTINGS_NAMESPACE: SettingsNamespace =
  * `ctx.fiber` is not declared on the public Context type, so it is read
  * through a minimal structural cast.
  */
+// TODO(cordis-upgrade): 升级 `@deepseek-ai/cordis` 时核对 `FiberState` 枚举
+// 数值（当前 DISPOSED = 4、UNLOADING = 5 来自 cordis 4.0.1；若上游加新成员
+// 或重排顺序，本镜像将静默失效；届时应改用上游导出的命名常量或抽到独立模块）。
+//
+// TODO(cordis-upgrade): when upgrading `@deepseek-ai/cordis`, re-verify the
+// `FiberState` enum values (DISPOSED = 4, UNLOADING = 5 as of cordis 4.0.1;
+// if upstream reorders or inserts members, this mirror silently breaks —
+// then prefer a named constant exported by cordis or extract to a module).
 function isUnloading(ctx: Context): boolean {
   const state = (ctx as { fiber?: { state?: number } }).fiber?.state;
   return state === 4 || state === 5;
